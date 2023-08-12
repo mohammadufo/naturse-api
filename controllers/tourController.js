@@ -1,97 +1,108 @@
-const fs = require('fs');
+const Tour = require('./../models/tourModel');
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, 'utf-8')
-);
+exports.getAllTours = async (req, res) => {
+  console.log(req.query);
 
-exports.checkID = (req, res, next, val) => {
-  const tour = tours.find((el) => el.id === +val);
+  const queryObj = { ...req.query };
+  const excludedFields = ['page', 'sort', 'limit', 'fields'];
+  excludedFields.forEach((el) => delete queryObj[el]);
 
-  if (!tour)
-    return res.status(404).json({
+  try {
+    const tours = await Tour.find(queryObj);
+
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
       status: 'failed',
-      message: 'tour not found!',
+      message: 'Something went wrong!',
+    });
+  }
+};
+
+exports.getTour = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const tour = await Tour.findById(id);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'failed',
+      message: 'Tour not found!',
+    });
+  }
+};
+
+exports.createTour = async (req, res) => {
+  try {
+    const newTour = await Tour.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'failed',
+      message: err,
+    });
+  }
+};
+
+exports.updateTour = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
     });
 
-  next();
-};
-
-exports.checkBody = (req, res, next) => {
-  if (!req.body.name)
-    return res.status(400).json({
-      status: 'failed',
-      message: 'Name is Required',
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: updatedTour,
+      },
     });
-  if (!req.body.price)
-    return res.status(400).json({
+  } catch (err) {
+    res.status(400).json({
       status: 'failed',
-      message: 'Price is Required',
+      message: 'Something went wrong!',
     });
-
-  next();
+  }
 };
 
-exports.getAllTours = (req, res) => {
-  console.log(req.requestTime);
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-};
-
-exports.getTour = (req, res) => {
+exports.deleteTour = async (req, res) => {
   const { id } = req.params;
-  const tour = tours.find((el) => el.id === +id);
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-};
-
-exports.createTour = (req, res) => {
-  const newId = tours[tours.length - 1].id + 1;
-  // const newTour = Object.assign({ id: newId }, req.body);
-  const newTour = { ...req.body, id: newId };
-
-  tours.push(newTour);
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour,
-        },
-      });
-    }
-  );
-};
-
-exports.updateTour = (req, res) => {
-  const { id } = req.params;
-  const tour = tours.find((tour) => tour.id === +id);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: 'updated tour will be here',
-    },
-  });
-};
-
-exports.deleteTour = (req, res) => {
-  const { id } = req.params;
-  const tour = tours.find((tour) => tour.id === +id);
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+  try {
+    await Tour.findByIdAndDelete(id);
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'failed',
+      data: 'Something went wrong!',
+    });
+  }
 };
