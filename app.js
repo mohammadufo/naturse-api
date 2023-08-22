@@ -8,15 +8,10 @@ const app = express();
 
 app.use(express.json());
 
+// eslint-disable-next-line
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-
-app.use((req, res, next) => {
-  console.log('Hello from the middleware! 👋🏻');
-
-  next();
-});
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -26,5 +21,12 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+app.all('*', (req, res) => {
+  res.status(404).json({
+    status: 'failed',
+    message: `Cant find ${req.originalUrl} on this server!`,
+  });
+});
 
 module.exports = app;
