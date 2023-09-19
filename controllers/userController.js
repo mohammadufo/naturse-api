@@ -20,6 +20,12 @@ exports.createUser = (req, res) => {
   });
 };
 
+exports.getMe = (req, res, next) => {
+  // console.log('i love alaa');
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm) {
     return next(
