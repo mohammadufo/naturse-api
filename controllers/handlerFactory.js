@@ -40,7 +40,7 @@ exports.updateOne = (Modal) =>
   });
 
 exports.createOne = (Modal) =>
-  catchAsync(async (req, res, next) => {
+  catchAsync(async (req, res) => {
     const doc = await Modal.create(req.body);
 
     res.status(201).json({
