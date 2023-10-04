@@ -6,6 +6,8 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
+const path = require('path');
+
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
@@ -15,6 +17,8 @@ const reviewRouter = require('./routes/reviewRoutes');
 const app = express();
 
 app.use(express.json({ limit: '10kb' }));
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(mongoSanitize());
 app.use(xss());
