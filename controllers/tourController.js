@@ -25,6 +25,8 @@ exports.deleteTour = factory.deleteOne(Tour);
 //     return next(new AppError('No tour found with that ID', 404));
 //   }
 
+// console.log('test');
+
 //   res.status(204).json({
 //     status: 'success',
 //     data: null,
