@@ -176,3 +176,23 @@ exports.getDistances = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getToursBySlug = catchAsync(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const tour = await Tour.findOne({ slug }).populate({
+    path: 'reviews',
+    fields: 'review rating user',
+  });
+
+  if (!tour) {
+    return next(new AppError('Tour not found!', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
+});

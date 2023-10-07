@@ -10,6 +10,7 @@ const {
   getMonthlyPlan,
   getToursWithin,
   getDistances,
+  getToursBySlug,
 } = require('../controllers/tourController');
 const { protect, restrictTo } = require('../controllers/authController');
 const reviewRouter = require('../routes/reviewRoutes');
@@ -48,5 +49,7 @@ router
   .get(getTour)
   .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
+
+router.route('/get-by-slug/:slug').get(getToursBySlug);
 
 module.exports = router;
